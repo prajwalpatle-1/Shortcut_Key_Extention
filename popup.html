@@ -4,7 +4,7 @@
     <title>Key Config</title>
     <style>
         body {
-            width: 450px; /* Slightly wider for complex keys like "Ctrl+Shift+F" */
+            width: 450px;
             font-family: 'Segoe UI', sans-serif;
             padding: 15px;
             background-color: #f9f9f9;
@@ -13,7 +13,24 @@
         h3 { margin-top: 0; text-align: center; margin-bottom: 5px;}
         p { font-size: 12px; color: #666; text-align: center; margin-bottom: 15px; }
 
-        /* Headers */
+        .btn-group { display: flex; gap: 10px; margin-bottom: 15px; }
+
+        .picker-btn {
+            flex: 1; padding: 10px;
+            background-color: #007bff; color: white; border: none;
+            border-radius: 6px; font-weight: bold; cursor: pointer;
+            text-transform: uppercase; font-size: 11px;
+        }
+        .add-btn {
+            flex: 1; padding: 10px;
+            background-color: #28a745; color: white; border: none;
+            border-radius: 6px; font-weight: bold; cursor: pointer;
+            text-transform: uppercase; font-size: 11px;
+        }
+
+        .picker-btn:hover { background-color: #0056b3; }
+        .add-btn:hover { background-color: #1e7e34; }
+
         .header {
             display: flex;
             color: #333; 
@@ -23,12 +40,14 @@
             border-bottom: 2px solid #333; 
         }
         
-        /* Scrollable Container for 10 rows */
         #container {
             max-height: 400px;
-            overflow-y: auto; /* Scrollbar if needed */
+            overflow-y: auto;
             border-bottom: 1px solid #ddd;
+            min-height: 50px;
         }
+        
+        .empty-msg { text-align: center; padding: 20px; color: #999; font-style: italic; font-size: 12px;}
 
         .row {
             display: flex;
@@ -38,9 +57,10 @@
             padding: 5px;
         }
 
-        .col-1 { width: 15%; font-size: 12px; font-weight: bold;} 
-        .col-2 { width: 45%; padding-right: 5px; } 
-        .col-3 { width: 40%; text-align: center; } 
+        .col-1 { width: 30%; font-size: 12px; font-weight: bold; text-align: center; color: #000000;} 
+        .col-2 { width: 50%; padding-right: 5px; } 
+        .col-3 { width: 30%; text-align: center; }
+        .col-4 { width: 10%; text-align: center; } 
 
         input[type="text"] {
             width: 90%; 
@@ -52,35 +72,40 @@
         }
 
         .id-input { font-family: monospace; color: #007bff; }
-        .key-input { text-align: center; font-weight: bold; color: #d63384; caret-color: transparent; } /* caret-color hides blinking cursor */
+        .key-input { text-align: center; font-weight: bold; color: #d63384; caret-color: transparent; }
         
         input:focus { outline: none; border-color: #007bff; background-color: #eef6ff; }
         .saved { background-color: #eaffea !important; transition: background 0.5s; }
         .error { background-color: #ffeaea !important; border-color: red !important; }
 
-        /* Footer & Buttons */
-        .footer { display: flex; justify-content: center; margin-top: 15px; }
+        .footer { display: flex; justify-content: space-between; margin-top: 15px; }
         
-        .reset-btn { 
-            padding: 10px 20px; background-color: #fff; border: 1px solid #000; 
-            border-radius: 10px; cursor: pointer; font-weight: bold; 
-        }
-        .reset-btn:hover { background-color: #e0e0e0; }
+        .reset-btn { background: none; border: none; color: #999; cursor: pointer; font-size: 11px; text-decoration: underline;}
+        .reset-btn:hover { color: red; }
 
-        .cancel-btn {
-            background-color: #fff; border: none; margin-left: 10px; 
-            padding: 10px 20px; border-radius: 10px; cursor: pointer; font-weight: bold;
-        }
-        .cancel-btn:hover { background-color: #f0f0f0; }
+        .del-btn { background: none; border: none; color: #999; font-weight: bold; cursor: pointer; font-size: 14px; }
+        .del-btn:hover { color: red; transform: scale(1.2); }
 
-        /* Accessibility / NVDA */
         .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0,0,0,0); }
         
-        /* Status Box */
         #error-box {
-            display: none; position: fixed; bottom: 60px; left: 5%; width: 90%;
-            background-color: #000; color: white; text-align: center; padding: 10px;
+            display: none; position: fixed; bottom: 10px; left: 5%; width: 90%;
+            background-color: #333; color: white; text-align: center; padding: 8px;
             border-radius: 4px; font-size: 12px; z-index: 100;
+        }
+
+        .domain-badge {
+        font-size: 10px;
+        color: #888;
+        background-color: #f1f1f1;
+        padding: 2px 5px;
+        border-radius: 4px;
+        margin-top: 4px;
+        display: inline-block;
+        border: 1px solid #ddd;
+        }
+        .id-input {
+            width: 100%; 
         }
     </style>
 </head>
@@ -88,20 +113,26 @@
 
     <div id="live-region" class="sr-only" aria-live="assertive"></div>
 
-    <h3>Shortcut Manager</h3>
-    <p>1. Type ID (Enter) &rarr; 2. Press Combo (e.g. Shift+1)</p>
+    <h3>Nayan Deep</h3>
+    <p> Press Ctrl+Shift+U to close this extention </p>
+
+    
+    <div class="btn-group">
+        <button id="pickerBtn" class="picker-btn">&#x2316; Pick Button</button>
+        <button id="addBtn" class="add-btn">+ Add Row</button>
+    </div>
 
     <div class="header">
         <div class="col-1">Shortcuts</div>
-        <div class="col-2">Button ID</div>
-        <div class="col-3">Key </div>
+        <div class="col-2">Button ID / Selector</div>
+        <div class="col-3">Key Combo</div>
+        <div class="col-4"></div>
     </div>
-
+    
     <div id="container"></div>
 
     <div class="footer">
-        <button id="resetBtn" class="reset-btn">Reset All</button>
-        <button id="cancelBtn" class="cancel-btn">Cancel</button>
+        <button id="resetBtn" class="reset-btn">Reset / Clear All</button>
     </div>
     
     <div id="error-box"></div>
