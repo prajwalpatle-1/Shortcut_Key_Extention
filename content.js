@@ -29,8 +29,42 @@ chrome.storage.onChanged.addListener((changes) => {
     }
 });
 
+
+// language
+function t(key) {
+    return TRANSLATIONS[currentLang][key] || TRANSLATIONS['en'][key];
+}
+// --- LOAD DATA & DETECT LANG ---
+function loadConfig() {
+    if (!chrome.runtime?.id) return; 
+    chrome.storage.local.get(['keyConfig', 'appLanguage'], (result) => {
+        cachedConfig = result.keyConfig || [];
+        
+        // --- AUTO DETECT LOGIC ---
+        if (result.appLanguage) {
+            currentLang = result.appLanguage;
+        } 
+        else {
+            // Auto detect from browser
+            const browserLang = navigator.language.split('-')[0];
+            if (TRANSLATIONS[browserLang]) {
+                currentLang = browserLang;
+            }
+            else {
+                currentLang = 'en';
+            }
+        }
+    });
+}
+loadConfig();
+chrome.storage.onChanged.addListener((changes) => {
+    if (changes.keyConfig) cachedConfig = changes.keyConfig.newValue || [];
+    if (changes.appLanguage) currentLang = changes.appLanguage.newValue || 'en';
+});
+
 // --- PART 3: KEY SHORTCUT LISTENER ---
 document.addEventListener('keydown', (e) => {
+    
     if (pickingMode) return; // Don't trigger shortcuts while picking!
     if (e.target.matches('input, textarea, [contenteditable]')) return;
     if (['Control', 'Shift', 'Alt', 'Meta'].includes(e.key)) return;
@@ -186,3 +220,53 @@ function recordShortcutForElement(selector, domain, visualElement) {
     };
     document.addEventListener('keydown', keyListener, true);
 }
+// function recordShortcutForElement(selector, domain, visualElement) {
+//     const keyListener = (e) => {
+//         e.preventDefault();
+//         e.stopPropagation();
+//         if (['Control', 'Alt', 'Shift', 'Meta'].includes(e.key)) return;
+//         let combo = [];
+//         if (e.ctrlKey) combo.push('Ctrl');
+//         if (e.altKey) combo.push('Alt');
+//         if (e.shiftKey) combo.push('Shift');
+//         if (e.metaKey) combo.push('Meta');
+//         let char = e.key.length === 1 ? e.key.toUpperCase() : e.key;
+//         combo.push(char);
+
+//         const finalKey = combo.join('+');
+
+//         chrome.storage.local.get(['keyConfig'], (data) => {
+//             let config = data.keyConfig || [];
+
+//             // Check: Does this key exist on this domain for a DIFFERENT button?
+//             const conflict = config.find(item => 
+//                 item.key === finalKey && 
+//                 item.domain === domain && 
+//                 item.id !== selector // Ignore if it's the button we are currently editing
+//             );
+
+//             if (conflict) {
+//                 // CASE 1: DUPLICATE FOUND
+//                 speak(`Shortcut ${finalKey} is already taken. Press a different key.`);
+                
+//                 // Visual Error Feedback (Flash Red)
+//                 if (visualElement) {
+//                     visualElement.style.outline = '4px solid red';
+//                     setTimeout(() => visualElement.style.outline = '4px solid #00E5FF', 500);
+//                 }
+//                 return;
+//             }
+
+//             // CASE 2: KEY IS VALID
+//             saveToStorage(selector, finalKey, domain);
+            
+//             // Cleanup: Now we can stop listening
+//             document.removeEventListener('keydown', keyListener, true);
+            
+//             if (visualElement) visualElement.style.outline = ''; 
+//             speak(`Shortcut saved: ${finalKey}`);
+//             alert(`Success!\n\nShortcut: ${finalKey}\nAction: Click Button`);
+//         });
+//     };
+//     document.addEventListener('keydown', keyListener, true);
+// }

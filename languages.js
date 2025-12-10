@@ -1,0 +1,95 @@
+// languages.js
+
+const TRANSLATIONS = {
+    en: {
+        pickBtn: "Pick Button",
+        resetBtn: "Reset All",
+        addBtn: "Add Manual",
+        noShortcuts: "No shortcuts yet. Click 'Pick Button' to start.",
+        shortcutLabel: "Shortcut",
+        deleteConfirm: "Delete this shortcut?",
+        deleteAllConfirm: "Are you sure you want to delete ALL shortcuts?",
+        pickerOn: "Picker Mode On. Click a button.",
+        pickerOff: "Picker Mode Cancelled.",
+        selected: "Button selected. Press your shortcut keys now.",
+        saved: "Shortcut saved: ",
+        conflict: "Shortcut already taken! Please press a different key.",
+        clicked: "Clicked"
+    },
+    hi: {
+        pickBtn: "बटन चुनें (Pick Button)",
+        resetBtn: "सभी रीसेट करें",
+        addBtn: "मैनुअल जोड़ें",
+        noShortcuts: "कोई शॉर्टकट नहीं। शुरू करने के लिए 'बटन चुनें' पर क्लिक करें।",
+        shortcutLabel: "शॉर्टकट",
+        deleteConfirm: "क्या आप यह शॉर्टकट हटाना चाहते हैं?",
+        deleteAllConfirm: "क्या आप सभी शॉर्टकट हटाना चाहते हैं?",
+        pickerOn: "पिकर मोड चालू है। किसी बटन पर क्लिक करें।",
+        pickerOff: "पिकर मोड रद्द कर दिया गया।",
+        selected: "बटन चुना गया। अब अपनी शॉर्टकट की दबाएं।",
+        saved: "शॉर्टकट सेव हो गया: ",
+        conflict: "यह शॉर्टकट पहले से उपयोग में है! कृपया कोई दूसरा बटन दबाएं।",
+        clicked: "क्लिक किया गया"
+    },
+    es: {
+        pickBtn: "Seleccionar Botón",
+        resetBtn: "Reiniciar Todo",
+        addBtn: "Agregar Manual",
+        noShortcuts: "No hay atajos. Haga clic en 'Seleccionar Botón'.",
+        shortcutLabel: "Atajo",
+        deleteConfirm: "¿Eliminar este atajo?",
+        deleteAllConfirm: "¿Estás seguro de eliminar TODOS los atajos?",
+        pickerOn: "Modo selector activado. Haga clic en un botón.",
+        pickerOff: "Modo selector cancelado.",
+        selected: "Botón seleccionado. Presione sus teclas de atajo ahora.",
+        saved: "Atajo guardado: ",
+        conflict: "¡Atajo ya ocupado! Presione una tecla diferente.",
+        clicked: "Clic"
+    },
+    fr: {
+        pickBtn: "Choisir le bouton",
+        resetBtn: "Tout réinitialiser",
+        addBtn: "Ajouter manuel",
+        noShortcuts: "Aucun raccourci. Cliquez sur 'Choisir le bouton'.",
+        shortcutLabel: "Raccourci",
+        deleteConfirm: "Supprimer ce raccourci ?",
+        deleteAllConfirm: "Voulez-vous vraiment supprimer TOUS les raccourcis ?",
+        pickerOn: "Mode sélection activé. Cliquez sur un bouton.",
+        pickerOff: "Mode sélection annulé.",
+        selected: "Bouton sélectionné. Appuyez sur vos touches de raccourci.",
+        saved: "Raccourci enregistré : ",
+        conflict: "Raccourci déjà pris ! Appuyez sur une autre touche.",
+        clicked: "Cliqué"
+    },
+    de: {
+        pickBtn: "Taste wählen",
+        resetBtn: "Alles zurücksetzen",
+        addBtn: "Manuell hinzufügen",
+        noShortcuts: "Keine Verknüpfungen. Klicken Sie auf 'Taste wählen'.",
+        shortcutLabel: "Verknüpfung",
+        deleteConfirm: "Diese Verknüpfung löschen?",
+        deleteAllConfirm: "Möchten Sie wirklich ALLE Verknüpfungen löschen?",
+        pickerOn: "Auswahlmodus ein. Klicken Sie auf eine Taste.",
+        pickerOff: "Auswahlmodus abgebrochen.",
+        selected: "Taste ausgewählt. Drücken Sie jetzt Ihre Tastenkombination.",
+        saved: "Verknüpfung gespeichert: ",
+        conflict: "Verknüpfung bereits vergeben! Drücken Sie eine andere Taste.",
+        clicked: "Geklickt"
+    },
+    // Add Marathi, Tamil, Telugu, etc. here easily now!
+    mr: {
+        pickBtn: "बटन निवडा",
+        resetBtn: "सर्व रीसेट करा",
+        addBtn: "मॅन्युअल जोडा",
+        noShortcuts: "शॉर्टकट नाहीत. 'बटन निवडा' क्लिक करा.",
+        shortcutLabel: "शॉर्टकट",
+        deleteConfirm: "हा शॉर्टकट हटवायचा?",
+        deleteAllConfirm: "तुम्हाला सर्व शॉर्टकट नक्की हटवायचे आहेत का?",
+        pickerOn: "पिकर मोड चालू. बटणावर क्लिक करा.",
+        pickerOff: "पिकर मोड रद्द.",
+        selected: "बटन निवडले. आता शॉर्टकट की दाबा.",
+        saved: "शॉर्टकट सेव्ह झाला: ",
+        conflict: "शॉर्टकट आधीच वापरला आहे! दुसरी की दाबा.",
+        clicked: "क्लिक केले"
+    }
+};

@@ -2,8 +2,62 @@ document.addEventListener('DOMContentLoaded', () => {
     const container = document.getElementById('container');
     const errorBox = document.getElementById('error-box');
     const liveRegion = document.getElementById('live-region');
+    const langSelect = document.getElementById('langSelect');
     
     let keyConfig = [];
+    let currentLang = 'en'; 
+
+    // 1. Load Data & AUTO-DETECT Language
+    chrome.storage.local.get(['keyConfig', 'appLanguage'], (result) => {
+        keyConfig = result.keyConfig || [];
+        
+        // --- AUTO DETECT LOGIC ---
+        if (result.appLanguage) {
+            // User has already saved a preference, use it
+            currentLang = result.appLanguage;
+        } 
+        else {
+            const browserLang = navigator.language.split('-')[0]; 
+            // Check if we have translations for this language
+            if (TRANSLATIONS[browserLang]) {
+                currentLang = browserLang;
+            } else {
+                currentLang = 'en'; // Fallback to English if not supported
+            }
+            
+            // Save this detected language so we remember it
+            chrome.storage.local.set({ appLanguage: currentLang });
+        }
+        // -------------------------
+
+        // Set Dropdown Value
+        if(langSelect) langSelect.value = currentLang;
+        
+        updateUIText();
+        renderRows();
+    });
+
+    // 2. Handle Language Change (Manual Override)
+    if(langSelect) {
+        langSelect.addEventListener('change', (e) => {
+            currentLang = e.target.value;
+            chrome.storage.local.set({ appLanguage: currentLang });
+            updateUIText();
+            renderRows(); 
+        });
+    }
+
+    function updateUIText() {
+        const t = TRANSLATIONS[currentLang];
+        
+        const pickBtn = document.getElementById('pickerBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        const addBtn = document.getElementById('addBtn');
+
+        if(pickBtn) pickBtn.innerText = t.pickBtn;
+        if(resetBtn) resetBtn.innerText = t.resetBtn;
+        if(addBtn) addBtn.innerText = t.addBtn;
+    }
 
     // 1. Load Data on Startup
     chrome.storage.local.get(['keyConfig'], (result) => {
@@ -106,7 +160,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // B. Key Recording Logic
             keyInput.addEventListener('keydown', (e) => {
-                if (e.key === 'Tab' || e.key === 'Enter' || e.key=== 'Ctrl+Shift+U') return; // Let Tab work normally
+                if (e.key === 'Tab' || e.key === 'Enter') return; // Let Tab work normally
                 e.preventDefault();
 
                 // Clear key on Backspace
@@ -223,4 +277,4 @@ document.addEventListener('DOMContentLoaded', () => {
             window.close();
         }
     });
-});
+}); 
