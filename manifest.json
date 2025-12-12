@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Nayan Deep",
-  "version": "1.0",
+  "version": "2.0",
   "description": "Use custom keyboard shortcuts to change webpage background colors.",
   "permissions": ["storage", "tabs","activeTab", "scripting"],
   "host_permissions": ["<all_urls>"],
