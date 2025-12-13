@@ -63,9 +63,37 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         enablePicker();
         sendResponse({ status: "ok" });
     }
+    // pick button shortcut
+    else if (request.action === "CLICK_PICK_BUTTON") {
+
+        if (typeof enablePicker === "function") {
+             enablePicker();
+             speak("Picker Enabled"); // Optional feedback
+        } 
+        // Fallback: Try to find the button and click it
+        else {
+            const pickBtn = document.querySelector('#picker-btn') || 
+                            document.querySelector('.pickerBtn'); 
+            if (pickBtn) {
+                pickBtn.click();
+                pickBtn.focus();
+
+                const btnName = pickBtn.getAttribute('aria-label') || pickBtn.innerText || "Pick Tool";
+                if (typeof speak === "function") {
+                    speak(`${btnName} ${t("clicked")}`); 
+                }
+                const originalOutline = pickBtn.style.outline;
+                pickBtn.style.outline = "4px solid yellow";
+                setTimeout(() => pickBtn.style.outline = originalOutline, 300);
+            } 
+            else {
+                console.log("Pick button not found.");
+            }
+        }
+        sendResponse({ status: "done" });
+    }
     return true;
 });
-
 chrome.storage.onChanged.addListener((changes) => {
     const currentDomain = window.location.hostname;
     if (changes[currentDomain]) siteConfig= changes[currentDomain].newValue || [];
@@ -99,8 +127,8 @@ document.addEventListener('keydown', (e) => {
         const btn = document.querySelector(match.id);
         if (btn) {
             btn.click();
-            btn.focus();
-            speak(t("clicked"));
+            btn.focus();const btnName = btn.getAttribute('aria-label') || btn.innerText || "Button";
+            speak(btnName + " " + t("clicked"));
             const originalOutline = btn.style.outline;
             btn.style.outline = "3px solid yellow";
             setTimeout(() => btn.style.outline = originalOutline, 200);
@@ -117,6 +145,7 @@ let pickerOverlay;
 chrome.runtime.onMessage.addListener((msg,sender,sendResponse) => {
     if (msg.action === "togglePicker") {
         enablePicker();
+        speak(t("pickerOn"));
         sendResponse({status: "ok" });
     }
     return true;
@@ -126,7 +155,7 @@ chrome.runtime.onMessage.addListener((msg,sender,sendResponse) => {
 function enablePicker() {
     pickingMode = true;
     document.body.style.cursor = 'crosshair';
-    speak(t("pickerOn"));
+    
     document.addEventListener('mouseover', handleMouseHover, true);
     document.addEventListener('click', handleSelection, true);
 
@@ -140,8 +169,6 @@ function enablePicker() {
 function disablePicker() {
     pickingMode = false;
     document.body.style.cursor = 'default';
-    speak(t("pickerOff"))
-
     if (lastHighlighted) {
         lastHighlighted.style.outline = '';
         lastHighlighted.classList.remove('nayan-highlight');
@@ -210,9 +237,9 @@ function handleKeySelection(e) {
 }
 
 function exitPickerOnEsc(e) {
-    if (e.key === 'Escape') {
+    if (e.key === 'Esc') {
         disablePicker();
-        speak(t('Picker Mode Cancelled'));
+        speak(t('pickerOff'));
     }
 }
 // Finalization
@@ -302,7 +329,8 @@ function recordShortcutForElement(selector,visualElement) {
 
             const conflict = config.find(item => item.key === finalKey && item.id !== selector);
             if (conflict) {
-                speak(t('conflict')); 
+                speak(t('conflict'));
+                showToast(t('conflict'))
                 if (visualElement) {
                     visualElement.style.outline = '4px solid red';
                     setTimeout(() => visualElement.style.outline = '4px solid #00E5FF', 500);

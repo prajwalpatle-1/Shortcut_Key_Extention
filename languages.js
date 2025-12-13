@@ -6,7 +6,7 @@ const TRANSLATIONS = {
         langCode: "en-US",
         // Popup UI
         title: "Nayan Deep",
-        subtitle: "Press Ctrl+Shift+U to close",
+        subtitle: "Press Ctrl+Shift+E to close",
         pickBtn: "⌖ Pick Button",
         addBtn: "+ Add Row",
         resetBtn: "Reset / Clear All",
@@ -39,7 +39,7 @@ const TRANSLATIONS = {
         langCode: "hi-IN",
         // Popup UI
         title: "नयन दीप",
-        subtitle: "बंद करने के लिए Ctrl+Shift+U दबाएं",
+        subtitle: "बंद करने के लिए Ctrl+Shift+E दबाएं",
         pickBtn: "⌖ बटन चुनें",
         addBtn: "+ नया जोड़ें",
         resetBtn: "रीसेट / सभी हटाएं",
@@ -72,7 +72,7 @@ const TRANSLATIONS = {
         langCode: "mr-IN",
         // Popup UI
         title: "नयन दीप",
-        subtitle: "बंद करण्यासाठी Ctrl+Shift+U दाबा",
+        subtitle: "बंद करण्यासाठी Ctrl+Shift+E दाबा",
         pickBtn: "⌖ बटन निवडा",
         addBtn: "+ नवीन जोडा",
         resetBtn: "रीसेट / सर्व हटवा",

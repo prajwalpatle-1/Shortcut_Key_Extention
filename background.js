@@ -15,3 +15,13 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
         }
     }
 });
+chrome.commands.onCommand.addListener((command) => {
+    if (command === "toggle_pick_mode") {
+        chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
+            if (tabs.length > 0) {
+                chrome.tabs.sendMessage(tabs[0].id, { action: "CLICK_PICK_BUTTON" })
+                .catch(() => {}); // Ignore errors on restricted pages
+            }
+        });
+    }
+});
