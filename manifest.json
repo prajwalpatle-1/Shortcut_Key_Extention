@@ -25,6 +25,20 @@
         "mac": "Alt+P"
       },
       "description": "Activate Pick Button"
+    },
+    "read_last_message": {
+      "suggested_key": {
+        "default": "Alt+Shift+L",
+        "mac": "MacCtrl+Shift+L"
+      },
+      "description": "Re-read the last notification"
+    },
+    "read_all_shortcuts": {
+      "suggested_key": {
+        "default": "Alt+R",
+        "mac": "MacCtrl+R"
+      },
+      "description": "Read all saved shortcuts for this page"
     }
   },
   "content_scripts": [

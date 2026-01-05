@@ -51,6 +51,7 @@ function loadConfig() {
 }
 loadConfig();
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+    // 1
     if (request.action === "changeLanguage") {
         currentLang = request.language;
         console.log("Language manually changed to:", currentLang);
@@ -59,18 +60,18 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         showToast(msgText);
         sendResponse({ status: "success" });
     }
+    // 2
     if (request.action === "togglePicker") {
         enablePicker();
         sendResponse({ status: "ok" });
     }
-    // pick button shortcut
+    // 3. pick button shortcut
     else if (request.action === "CLICK_PICK_BUTTON") {
 
         if (typeof enablePicker === "function") {
              enablePicker();
-             speak("Picker Enabled"); // Optional feedback
+             speak("Picker Enabled");
         } 
-        // Fallback: Try to find the button and click it
         else {
             const pickBtn = document.querySelector('#picker-btn') || 
                             document.querySelector('.pickerBtn'); 
@@ -92,8 +93,60 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         }
         sendResponse({ status: "done" });
     }
+    // 4. Read Last Saved Shortcut
+    else if (request.action === "RE_READ_TOAST") {
+        if (typeof lastToastMessage !== 'undefined' && lastToastMessage) {
+            speak(lastToastMessage);
+            showToast(lastToastMessage); // Show it visually again
+        } else {
+            speak("No recent messages.");
+        }
+        sendResponse({ status: "done" });
+    }
+
+   // 5. READ ALL SHORTCUTS
+    else if (request.action === "READ_ALL_SAVED") {
+        readAllShortcuts();
+        sendResponse({ status: "done" });
+    }
+
+    // 6. ANNOUNCE CLOSE
+    else if (request.action === "ANNOUNCE_CLOSE") {
+        const msg = t('extClosed'); 
+        speak(msg);
+        // No response needed
+    }
     return true;
 });
+function readAllShortcuts(){
+    const currentDomain = window.location.hostname;
+    
+    chrome.storage.local.get([currentDomain], (result) => {
+        const shortcuts = result[currentDomain] || [];
+
+        if (shortcuts.length > 0) {
+            let fullText = t(`You have ${shortcuts.length} shortcuts saved for ${currentDomain.replace('www.', '')}. `);
+
+            shortcuts.forEach((item, index) => {
+                const buttonName = item.id || `Shortcut ${index + 1}`;
+                let readableKey = (item.key || "Unknown Key").replace(/\+/g, " plus ");
+                fullText += ` Press ${readableKey} for ${buttonName}. `;
+            });
+
+            speak(fullText);
+
+            if (typeof showToast === "function") {
+                showToast(t(`Reading ${shortcuts.length} shortcuts...`));
+            }
+        } 
+        else {
+            speak(t("noshortcut"));
+            showToast(t("noshortcut"))
+        }
+    });
+}
+
+// Storage listener
 chrome.storage.onChanged.addListener((changes) => {
     const currentDomain = window.location.hostname;
     if (changes[currentDomain]) siteConfig= changes[currentDomain].newValue || [];
@@ -137,6 +190,14 @@ document.addEventListener('keydown', (e) => {
             console.log("Button not found:", match.id);
             speak(t("notFound"));
         }
+    }
+});
+// read all 
+document.addEventListener('keydown', (e) => {
+    if (e.altKey && e.key.toLowerCase() === 's') {
+        e.preventDefault();
+        e.stopPropagation();
+        readAllShortcuts(); 
     }
 });
 
@@ -237,9 +298,12 @@ function handleKeySelection(e) {
 }
 
 function exitPickerOnEsc(e) {
-    if (e.key === 'Esc') {
+    if (e.key === 'Esc' || e.key === 'Escape') {
+        e.preventDefault();
+        e.stopPropagation();
         disablePicker();
-        speak(t('pickerOff'));
+        speak(t("pickerOff"));
+        showToast(t("pickerOff"));
     }
 }
 // Finalization
@@ -272,7 +336,6 @@ function generateSelector(el) {
     if (el.alt) return `[alt="${el.alt}"]`;
 
     // 4. Stable IDs (Ignore weird generated ones)
-    // Only use ID if it looks human-readable, not random like "yDmH0d"
     if (el.id && !el.id.match(/[A-Z0-9]{5,}/)) {
         return '#' + el.id;
     }
@@ -358,15 +421,22 @@ function recordShortcutForElement(selector,visualElement) {
                         visualElement.style.boxShadow = '';
                     }, 500);
                 }
-                speak(t('saved') + finalKey);
-                showToast(t('saved') + finalKey);
+                const btnName = visualElement.getAttribute('aria-label') || 
+                                visualElement.getAttribute('title') || 
+                                visualElement.innerText.trim() || 
+                                visualElement.getAttribute('alt') || "Button";
+                const fullMessage = `For ${btnName} ${t('saved')} ${finalKey}`;
+                speak(fullMessage);
+                showToast(fullMessage);
             });
         });
     };
     document.addEventListener('keydown', keyListener, true);
 }
 // --- TOAST NOTIFICATION HELPER ---
+let lastToastMessage ="";
 function showToast(message) {
+    lastToastMessage = message;
     const container = document.createElement('div');
     container.style.position = 'fixed';
     container.style.zIndex = '2147483647'; 

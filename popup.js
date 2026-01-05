@@ -1,3 +1,4 @@
+chrome.runtime.connect({ name: "popup_lifetime" });
 document.addEventListener('DOMContentLoaded', () => {
     const container = document.getElementById('container');
     const errorBox = document.getElementById('error-box');
@@ -20,7 +21,25 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         return text || key;
     }
-
+    setTimeout(() => {
+        chrome.storage.local.get(['appLanguage'], (result) => {
+            let lang = result.appLanguage || navigator.language.split('-')[0] || 'en';
+            if (!TRANSLATIONS[lang]) lang = 'en';
+            const msg = TRANSLATIONS[lang].welcomeMessage || "Nayan Deep Open";
+            let announcer = document.getElementById('live-region');
+            if (!announcer) {
+                announcer = document.createElement('div');
+                announcer.id = 'live-region';
+                announcer.setAttribute('aria-live', 'assertive');
+                announcer.style.cssText = 'position:absolute; left:-9999px; width:1px; height:1px; overflow:hidden;';
+                document.body.appendChild(announcer);
+            }
+            announcer.textContent = "";
+            setTimeout(() => {
+                announcer.textContent = msg;
+            }, 100);
+        });
+    }, 100);
     // 1. Load Data & AUTO-DETECT Language
     // chrome.storage.local.get(['keyConfig', 'appLanguage'], (result) => {
     //     keyConfig = result.keyConfig || [];
@@ -161,7 +180,26 @@ document.addEventListener('DOMContentLoaded', () => {
         const emptyMsg = document.querySelector('.empty-msg');
         if (emptyMsg) emptyMsg.innerText = t('emptyMsg');
 
-        
+        // --- NEW: UPDATE TABLE HEADERS ---
+        const thFeature = document.getElementById('th-feature');
+        const thShortcut = document.getElementById('th-shortcut');
+        if (thFeature) thFeature.innerText = t('thFeature');
+        if (thShortcut) thShortcut.innerText = t('thShortcut');
+
+        // --- NEW: UPDATE TABLE DESCRIPTIONS ---
+        const descPopup = document.getElementById('desc-popup');
+        const descPicker = document.getElementById('desc-picker');
+        const descReadAll = document.getElementById('desc-readall');
+
+        if (descPopup) descPopup.innerText = t('descPopup');
+        if (descPicker) descPicker.innerText = t('descPicker');
+        if (descReadAll) descReadAll.innerText = t('descReadAll');
+
+        // --- NEW: UPDATE READ ALL BUTTON ---
+        const readAllBtn = document.getElementById('readAllBtn');
+        if (readAllBtn) {
+            readAllBtn.innerText = t('btnReadAll');
+        }
     }
     // Render rows (Builds the list based on current data)
     function renderRows() {
@@ -339,7 +377,16 @@ document.addEventListener('DOMContentLoaded', () => {
         liveRegion.innerText = msg;
         setTimeout(() => { errorBox.style.display = 'none'; }, 2000);
     }
-
+    // --- MISSING HELPER FUNCTION ---
+    function sendMessageToContent(message) {
+        chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+            if (tabs[0]) {
+                chrome.tabs.sendMessage(tabs[0].id, message);
+            } else {
+                console.error("No active tab found.");
+            }
+        });
+    }
     // 4. Button Event Listeners
 
     // Add New Row Button
@@ -369,6 +416,23 @@ document.addEventListener('DOMContentLoaded', () => {
                     window.close(); // Close popup so user can click on page
                 }
             });
+        });
+    }
+
+    const readLastBtn = document.getElementById('readLastBtn');
+    if (readLastBtn) {
+        readLastBtn.addEventListener('click', () => {
+            console.log("Re-read clicked"); 
+            sendMessageToContent({ action: "RE_READ_TOAST" });
+        });
+    }
+
+    // B. "Read All Shortcuts" Button
+    const readAllBtn = document.getElementById('readAllBtn');
+    if (readAllBtn) {
+        readAllBtn.addEventListener('click', () => {
+            console.log("Read All clicked"); // Debug check
+            sendMessageToContent({ action: "READ_ALL_SAVED" });
         });
     }
 
